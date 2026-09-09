@@ -1,0 +1,155 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Book;
+use App\Models\Category;
+use App\Services\ObjectStorage;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+class CatalogController extends Controller
+{
+    public function index(Request $request): Response
+    {
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'category' => ['nullable', 'string', 'max:100'],
+            'view' => ['nullable', 'in:all,recent,starred'],
+            'action' => ['nullable', 'in:upload,folder'],
+        ]);
+
+        $books = Book::query()
+            ->with('category:id,name,slug')
+            ->when($filters['search'] ?? null, function ($query, string $search): void {
+                $query->where(function ($query) use ($search): void {
+                    $query->whereLike('title', "%{$search}%")
+                        ->orWhereLike('original_filename', "%{$search}%")
+                        ->orWhereLike('author', "%{$search}%")
+                        ->orWhereLike('mime_type', "%{$search}%")
+                        ->orWhereLike('isbn', "%{$search}%")
+                        ->orWhereHas('category', fn ($query) => $query->whereLike('name', "%{$search}%"));
+                });
+            })
+            ->when($filters['category'] ?? null, fn ($query, string $slug) => $query->whereHas('category', fn ($query) => $query->where('slug', $slug))
+            )
+            ->when(($filters['view'] ?? 'all') === 'starred', fn ($query) => $query->where('is_starred', true))
+            ->when(
+                ($filters['view'] ?? 'all') === 'recent',
+                fn ($query) => $query->orderByDesc('last_opened_at')->orderByDesc('updated_at'),
+                fn ($query) => $query->latest(),
+            )
+            ->paginate(9)
+            ->withQueryString();
+
+        return Inertia::render('Catalog/Index', [
+            'books' => $books,
+            'categories' => Category::query()->orderBy('name')->get(['id', 'name', 'slug']),
+            'filters' => [
+                'search' => $filters['search'] ?? '',
+                'category' => $filters['category'] ?? '',
+                'view' => $filters['view'] ?? 'all',
+                'action' => $filters['action'] ?? '',
+            ],
+            'stats' => [
+                'titles' => Book::count(),
+                'copies' => Book::sum('total_copies'),
+                'available' => Book::sum('available_copies'),
+            ],
+        ]);
+    }
+
+    public function storeCategory(Request $request): RedirectResponse
+    {
+        $validated = $request->validate(['name' => ['required', 'string', 'max:80', 'unique:categories,name']]);
+
+        Category::create([
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']).'-'.Str::lower(Str::random(5)),
+        ]);
+
+        return back()->with('success', 'Folder berhasil dibuat.');
+    }
+
+    public function storeBook(Request $request, ObjectStorage $storage): RedirectResponse
+    {
+        $validated = $request->validate([
+            'category_id' => ['nullable', 'exists:categories,id'],
+            'files' => ['required', 'array', 'min:1', 'max:20'],
+            'files.*' => ['required', 'file', 'max:102400'],
+        ]);
+
+        $categoryId = $validated['category_id'] ?? Category::query()->value('id');
+        if (! $categoryId) {
+            $categoryId = Category::create(['name' => 'Umum', 'slug' => 'umum'])->id;
+        }
+
+        foreach ($request->file('files') as $file) {
+            $objectId = $storage->id();
+            Book::create([
+                'uuid' => $objectId,
+                'bucket' => 'library',
+                'category_id' => $categoryId,
+                'title' => $file->getClientOriginalName(),
+                'author' => $request->user()->name,
+                ...$storage->put($file, $objectId),
+                'total_copies' => 1,
+                'available_copies' => 1,
+            ]);
+        }
+
+        return to_route('catalog.index')->with('success', count($validated['files']).' file berhasil diunggah.');
+    }
+
+    public function toggleStar(Book $book): RedirectResponse
+    {
+        $book->update(['is_starred' => ! $book->is_starred]);
+
+        return back()->with('success', $book->is_starred ? 'Ditambahkan ke Berbintang.' : 'Dihapus dari Berbintang.');
+    }
+
+    public function download(Book $book, ObjectStorage $storage): StreamedResponse
+    {
+        abort_unless($storage->exists($book->storageKey()), 404, 'File tidak tersedia.');
+        $book->update(['last_opened_at' => now()]);
+
+        return $storage->download($book->storageKey(), $book->original_filename ?? $book->title);
+    }
+
+    public function open(Book $book, ObjectStorage $storage): SymfonyResponse
+    {
+        $book->update(['last_opened_at' => now()]);
+
+        return $this->content($book, $storage);
+    }
+
+    public function content(Book $book, ObjectStorage $storage): SymfonyResponse
+    {
+        abort_unless($storage->exists($book->storageKey()), 404, 'File tidak tersedia.');
+
+        $previewable = str_starts_with($book->mime_type ?? '', 'image/')
+            || str_starts_with($book->mime_type ?? '', 'audio/')
+            || str_starts_with($book->mime_type ?? '', 'video/')
+            || str_starts_with($book->mime_type ?? '', 'text/')
+            || $book->mime_type === 'application/pdf';
+
+        if (! $previewable) {
+            return $storage->download($book->storageKey(), $book->original_filename ?? $book->title);
+        }
+
+        return $storage->inline($book->storageKey(), $book->original_filename ?? $book->title, $book->mime_type);
+    }
+
+    public function destroy(Book $book, ObjectStorage $storage): RedirectResponse
+    {
+        $storage->delete($book->storageKey());
+        $book->delete();
+
+        return back()->with('success', 'Dokumen berhasil dihapus.');
+    }
+}
