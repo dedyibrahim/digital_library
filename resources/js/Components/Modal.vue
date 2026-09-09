@@ -19,10 +19,12 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 const dialog = ref();
 const showSlot = ref(props.show);
+let closeTimer;
 
 watch(
     () => props.show,
     () => {
+        clearTimeout(closeTimer);
         if (props.show) {
             document.body.style.overflow = 'hidden';
             showSlot.value = true;
@@ -31,7 +33,7 @@ watch(
         } else {
             document.body.style.overflow = '';
 
-            setTimeout(() => {
+            closeTimer = setTimeout(() => {
                 dialog.value?.close();
                 showSlot.value = false;
             }, 200);
@@ -58,6 +60,7 @@ const closeOnEscape = (e) => {
 onMounted(() => document.addEventListener('keydown', closeOnEscape));
 
 onUnmounted(() => {
+    clearTimeout(closeTimer);
     document.removeEventListener('keydown', closeOnEscape);
 
     document.body.style.overflow = '';

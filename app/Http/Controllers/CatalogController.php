@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\Category;
 use App\Services\ObjectStorage;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
@@ -103,7 +106,7 @@ class CatalogController extends Controller
             ]);
         }
 
-        return to_route('catalog.index')->with('success', count($validated['files']).' file berhasil diunggah.');
+        return back()->with('success', count($validated['files']).' file berhasil diunggah.');
     }
 
     public function toggleStar(Book $book): RedirectResponse
@@ -111,6 +114,39 @@ class CatalogController extends Controller
         $book->update(['is_starred' => ! $book->is_starred]);
 
         return back()->with('success', $book->is_starred ? 'Ditambahkan ke Berbintang.' : 'Dihapus dari Berbintang.');
+    }
+
+    public function rename(Request $request, Book $book): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'not_in:.,..', 'regex:~^[^/\\\\\x00-\x1F\x7F]+$~u'],
+        ], [
+            'name.required' => 'Nama file wajib diisi.',
+            'name.regex' => 'Nama file tidak boleh mengandung garis miring atau karakter kontrol.',
+        ]);
+
+        $name = trim($validated['name']);
+        if ($book->original_filename && strtolower(pathinfo($name, PATHINFO_EXTENSION)) !== strtolower(pathinfo($book->original_filename, PATHINFO_EXTENSION))) {
+            throw ValidationException::withMessages(['name' => 'Ekstensi file harus tetap sama.']);
+        }
+
+        $book->update([
+            'title' => $name,
+            'original_filename' => $book->original_filename ? $name : null,
+        ]);
+
+        return back()->with('success', 'Nama file berhasil diperbarui.');
+    }
+
+    public function share(Book $book, ObjectStorage $storage): JsonResponse
+    {
+        abort_unless($storage->exists($book->storageKey()), 404, 'File tidak tersedia.');
+        $expiresAt = now()->addDays(7);
+
+        return response()->json([
+            'url' => URL::temporarySignedRoute('books.shared', $expiresAt, ['book' => $book->uuid]),
+            'expires_at' => $expiresAt->toIso8601String(),
+        ]);
     }
 
     public function download(Book $book, ObjectStorage $storage): StreamedResponse
