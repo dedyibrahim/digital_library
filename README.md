@@ -1,5 +1,7 @@
 # Digital Library
 
+[![CI](https://github.com/dedyibrahim/digital_library/actions/workflows/ci.yml/badge.svg)](https://github.com/dedyibrahim/digital_library/actions/workflows/ci.yml)
+
 Digital Library adalah aplikasi penyimpanan dan pengelolaan file berbasis web dengan pengalaman seperti Google Drive. File disimpan melalui object storage internal menggunakan object key UUID, sedangkan metadata dikelola di PostgreSQL.
 
 ## Fitur
@@ -37,6 +39,26 @@ objects/library/{prefix}/{uuid}.{extension}
 ```
 
 Metadata seperti UUID, bucket, object key, nama asli, MIME type, ukuran, folder, status bintang, dan waktu terakhir dibuka tersimpan di PostgreSQL. Semua endpoint file dilindungi autentikasi.
+
+```mermaid
+flowchart LR
+    U[Browser] --> I[Inertia + Vue]
+    I --> L[Laravel API]
+    L --> P[(PostgreSQL metadata)]
+    L --> O[Private object storage]
+    O --> K[UUID object keys]
+```
+
+## Struktur utama
+
+```text
+app/Services/ObjectStorage.php          Object storage internal
+app/Http/Controllers/CatalogController.php
+resources/js/Pages/Catalog/Index.vue    Antarmuka drive dan preview
+resources/js/Components/FileThumbnail.vue
+database/migrations/                    Skema PostgreSQL
+tests/Feature/                          Test integrasi
+```
 
 ## Instalasi
 
