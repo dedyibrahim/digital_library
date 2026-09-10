@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Pustaka Desktop</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside>
+    <div class="brand"><img src="icon.png" alt="" width="42" height="42"><span>Pustaka<span class="muted">Desktop</span></span></div>
+    <div class="nav active">▣ &nbsp; Komputer saya</div>
+    <button id="web" class="nav">↗ &nbsp; Buka pustaka web</button>
+    <div class="sidebar-bottom">File Anda, tetap terhubung.<br><span class="muted">Pustaka Desktop · 1.0.0</span></div>
+  </aside>
+  <main>
+    <header><div><span class="eyebrow">PUSTAKA DIGITAL</span><h1>Komputer saya</h1></div><span id="account" class="badge">Belum login</span></header>
+    <div id="error" role="alert" hidden></div>
+    <section id="login-panel" class="card">
+      <div class="hero">↥</div><h2>Folder Anda, tersinkron.</h2>
+      <p class="muted">Masuk dengan akun Pustaka Digital untuk menghubungkan komputer ini.</p>
+      <form id="login-form">
+        <label for="server">Alamat server</label><input id="server" type="url" value="http://127.0.0.1:8000" required>
+        <small>Gunakan HTTPS untuk server online. Localhost hanya untuk komputer yang menjalankan Laravel.</small>
+        <label for="email">Email</label><input id="email" type="email" autocomplete="username" required>
+        <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required>
+        <button class="primary" id="login-button" type="submit">Masuk</button>
+      </form>
+    </section>
+    <div id="sync-panel" hidden>
+      <section class="card">
+        <div class="section-heading"><div class="folder-icon">▰</div><div><h2>Folder sinkronisasi</h2><p id="folder-path" class="muted">Belum ada folder dipilih.</p></div></div>
+        <div class="actions"><button id="choose-folder">Pilih folder</button><button id="open-folder">Buka folder</button></div>
+        <div class="status"><span id="indicator">●</span><span id="status">Siap.</span></div>
+        <div class="transfer-progress">
+          <div class="progress-heading"><span id="progress-label">Belum dimulai</span><strong id="progress-percent">0%</strong></div>
+          <progress id="progress-bar" max="100" value="0" aria-label="Persentase sinkronisasi"></progress>
+          <small id="progress-file"></small>
+        </div>
+        <div class="actions"><button id="toggle" class="primary">Mulai sinkronisasi</button><button id="sync">Periksa sekarang</button></div>
+        <p class="note">File baru dan perubahan disinkronkan setiap 15 detik selama aplikasi berjalan. Maksimal 100 MB/file. Konflik disimpan sebagai salinan. Penghapusan tidak diteruskan; file yang masih tersedia dapat dipulihkan pada sinkronisasi berikutnya. Folder kosong dan perubahan nama dari web belum disinkronkan.</p>
+        <label class="check"><input id="auto-start" type="checkbox"> Jalankan saat masuk Windows</label>
+      </section>
+      <section class="card activity"><h2>Aktivitas terbaru</h2><ol id="events"><li>Aktivitas sinkronisasi akan muncul di sini.</li></ol></section>
+      <footer><span class="muted">Menutup jendela menyimpan aplikasi di tray.</span><button id="logout">Logout</button></footer>
+    </div>
+  </main>
+  <script src="renderer.js"></script>
+</body>
+</html>

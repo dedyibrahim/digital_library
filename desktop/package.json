@@ -1,0 +1,47 @@
+{
+  "name": "pustaka-desktop",
+  "version": "1.0.0",
+  "description": "Pustaka Digital desktop folder synchronization",
+  "author": "Pustaka Digital",
+  "private": true,
+  "main": "src/main.cjs",
+  "scripts": {
+    "prestart": "node scripts/make-icon.cjs",
+    "predist": "node scripts/make-icon.cjs",
+    "prepack": "node scripts/make-icon.cjs",
+    "start": "electron .",
+    "test": "node --test test/*.test.cjs",
+    "smoke": "electron scripts/smoke.cjs",
+    "smoke:transfer": "electron scripts/transfer-smoke.cjs",
+    "dist": "electron-builder --win nsis --x64",
+    "pack": "electron-builder --dir"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "electron": "44.3.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "id.pustaka.desktop",
+    "productName": "Pustaka Desktop",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "src/icon.ico",
+      "signExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "artifactName": "Pustaka-Desktop-Setup-${version}.${ext}"
+    }
+  }
+}
