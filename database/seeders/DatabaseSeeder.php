@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@pustaka.test'],
             [
                 'name' => 'Admin Pustaka',
+                'role' => 'admin',
                 'email_verified_at' => now(),
                 'password' => Hash::make('password'),
             ],

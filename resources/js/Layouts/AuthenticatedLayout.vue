@@ -46,6 +46,13 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Pustaka Saya
                                 </NavLink>
+                                <NavLink
+                                    v-if="$page.props.auth.user.role === 'admin'"
+                                    :href="route('admin.users.index')"
+                                    :active="route().current('admin.users.*')"
+                                >
+                                    Pengguna
+                                </NavLink>
                             </div>
                         </div>
 
@@ -155,6 +162,13 @@ const showingNavigationDropdown = ref(false);
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('catalog.index')">
                             Pustaka Saya
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            v-if="$page.props.auth.user.role === 'admin'"
+                            :href="route('admin.users.index')"
+                            :active="route().current('admin.users.*')"
+                        >
+                            Pengguna
                         </ResponsiveNavLink>
                     </div>
 
