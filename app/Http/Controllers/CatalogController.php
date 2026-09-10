@@ -28,6 +28,7 @@ class CatalogController extends Controller
         ]);
 
         $books = Book::query()
+            ->visibleTo($request->user())
             ->with('category:id,name,slug')
             ->when($filters['search'] ?? null, function ($query, string $search): void {
                 $query->where(function ($query) use ($search): void {
@@ -60,9 +61,9 @@ class CatalogController extends Controller
                 'action' => $filters['action'] ?? '',
             ],
             'stats' => [
-                'titles' => Book::count(),
-                'copies' => Book::sum('total_copies'),
-                'available' => Book::sum('available_copies'),
+                'titles' => Book::visibleTo($request->user())->count(),
+                'copies' => Book::visibleTo($request->user())->sum('total_copies'),
+                'available' => Book::visibleTo($request->user())->sum('available_copies'),
             ],
         ]);
     }
@@ -111,6 +112,7 @@ class CatalogController extends Controller
 
     public function toggleStar(Book $book): RedirectResponse
     {
+        $book->authorizeDesktopOwner(request()->user());
         $book->update(['is_starred' => ! $book->is_starred]);
 
         return back()->with('success', $book->is_starred ? 'Ditambahkan ke Berbintang.' : 'Dihapus dari Berbintang.');
@@ -118,6 +120,7 @@ class CatalogController extends Controller
 
     public function rename(Request $request, Book $book): RedirectResponse
     {
+        $book->authorizeDesktopOwner($request->user());
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'not_in:.,..', 'regex:~^[^/\\\\\x00-\x1F\x7F]+$~u'],
         ], [
@@ -140,6 +143,7 @@ class CatalogController extends Controller
 
     public function share(Book $book, ObjectStorage $storage): JsonResponse
     {
+        $book->authorizeDesktopOwner(request()->user());
         abort_unless($storage->exists($book->storageKey()), 404, 'File tidak tersedia.');
         $expiresAt = now()->addDays(7);
 
@@ -151,6 +155,9 @@ class CatalogController extends Controller
 
     public function download(Book $book, ObjectStorage $storage): StreamedResponse
     {
+        if (! request()->routeIs('books.shared')) {
+            $book->authorizeDesktopOwner(request()->user());
+        }
         abort_unless($storage->exists($book->storageKey()), 404, 'File tidak tersedia.');
         $book->update(['last_opened_at' => now()]);
 
@@ -159,6 +166,7 @@ class CatalogController extends Controller
 
     public function open(Book $book, ObjectStorage $storage): SymfonyResponse
     {
+        $book->authorizeDesktopOwner(request()->user());
         $book->update(['last_opened_at' => now()]);
 
         return $this->content($book, $storage);
@@ -166,6 +174,7 @@ class CatalogController extends Controller
 
     public function content(Book $book, ObjectStorage $storage): SymfonyResponse
     {
+        $book->authorizeDesktopOwner(request()->user());
         abort_unless($storage->exists($book->storageKey()), 404, 'File tidak tersedia.');
 
         $previewable = str_starts_with($book->mime_type ?? '', 'image/')
@@ -183,6 +192,7 @@ class CatalogController extends Controller
 
     public function destroy(Book $book, ObjectStorage $storage): RedirectResponse
     {
+        $book->authorizeDesktopOwner(request()->user());
         $storage->delete($book->storageKey());
         $book->delete();
 
