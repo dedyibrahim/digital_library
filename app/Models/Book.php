@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\IndexDocument;
 use Database\Factories\BookFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,10 +17,26 @@ class Book extends Model
     /** @use HasFactory<BookFactory> */
     use HasFactory;
 
+    protected $hidden = ['search_text', 'search_version'];
+
     protected static function booted(): void
     {
         static::creating(function (Book $book): void {
             $book->uuid ??= (string) Str::uuid();
+        });
+        static::saving(function (Book $book): void {
+            if ($book->isDirty(['object_key', 'file_path'])) {
+                $book->search_text = null;
+                $book->search_indexed_at = null;
+                $book->search_status = $book->storageKey() ? 'pending' : 'unsupported';
+                $book->search_version = (string) Str::uuid();
+            }
+        });
+        static::saved(function (Book $book): void {
+            if ($book->isDirty('search_version') && $book->storageKey()) {
+                IndexDocument::dispatch($book->id, $book->search_version)
+                    ->onConnection('document-indexing')->onQueue('indexing')->afterCommit();
+            }
         });
     }
 
@@ -61,5 +78,18 @@ class Book extends Model
     public function authorizeDesktopOwner(?User $user): void
     {
         abort_if($this->desktop_user_id !== null && (int) $this->desktop_user_id !== $user?->id, 404);
+    }
+
+    public function scopeMatchingContent(Builder $query, string $search): Builder
+    {
+        $query->whereIn('search_status', ['ready', 'partial']);
+        if ($query->getConnection()->getDriverName() === 'pgsql') {
+            return $query->whereRaw("to_tsvector('simple', coalesce(search_text, '')) @@ plainto_tsquery('simple', ?)", [$search]);
+        }
+        foreach (preg_split('/\s+/u', trim($search), -1, PREG_SPLIT_NO_EMPTY) as $word) {
+            $query->whereLike('search_text', '%'.$word.'%');
+        }
+
+        return $query;
     }
 }

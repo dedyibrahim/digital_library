@@ -30,14 +30,17 @@ class CatalogController extends Controller
         $books = Book::query()
             ->visibleTo($request->user())
             ->with('category:id,name,slug')
-            ->when($filters['search'] ?? null, function ($query, string $search): void {
-                $query->where(function ($query) use ($search): void {
+            ->when($filters['search'] ?? null, function ($query, string $search) use ($request): void {
+                $query->where(function ($query) use ($search, $request): void {
                     $query->whereLike('title', "%{$search}%")
                         ->orWhereLike('original_filename', "%{$search}%")
                         ->orWhereLike('author', "%{$search}%")
                         ->orWhereLike('mime_type', "%{$search}%")
                         ->orWhereLike('isbn', "%{$search}%")
                         ->orWhereHas('category', fn ($query) => $query->whereLike('name', "%{$search}%"));
+                    if ($request->user() && trim($search) !== '') {
+                        $query->orWhere(fn ($content) => $content->matchingContent($search));
+                    }
                 });
             })
             ->when($filters['category'] ?? null, fn ($query, string $slug) => $query->whereHas('category', fn ($query) => $query->where('slug', $slug))
@@ -50,6 +53,18 @@ class CatalogController extends Controller
             )
             ->paginate(9)
             ->withQueryString();
+
+        if ($request->user() && filled($filters['search'] ?? null)) {
+            $needle = preg_split('/\s+/u', trim($filters['search']))[0];
+            $books->through(function (Book $book) use ($needle): Book {
+                $position = mb_stripos($book->search_text ?? '', $needle);
+                if ($position !== false) {
+                    $book->setAttribute('search_excerpt', ($position > 60 ? '…' : '').mb_substr($book->search_text, max(0, $position - 60), 220));
+                }
+
+                return $book;
+            });
+        }
 
         return Inertia::render('Catalog/Index', [
             'books' => $books,

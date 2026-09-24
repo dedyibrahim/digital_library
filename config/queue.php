@@ -31,6 +31,14 @@ return [
 
     'connections' => [
 
+        'document-indexing' => [
+            'driver' => 'database',
+            'table' => 'jobs',
+            'queue' => 'indexing',
+            'retry_after' => 900,
+            'after_commit' => true,
+        ],
+
         'sync' => [
             'driver' => 'sync',
         ],

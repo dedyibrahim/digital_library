@@ -1,0 +1,4 @@
+pypdfium2==5.13.0
+Pillow==12.3.0
+pytesseract==0.3.13
+defusedxml==0.7.1

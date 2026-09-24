@@ -180,6 +180,29 @@ npm run build
 
 Test mencakup autentikasi, dashboard, pencarian, folder, upload multi-file, object storage, preview, download, bintang, validasi, kompatibilitas route lama, dan penghapusan file.
 
+## Pencarian isi dokumen dan OCR
+
+Pengguna yang login dapat mencari kata dalam PDF, gambar scan (PNG/JPG/TIFF/BMP/WebP), DOCX, XLSX, PPTX, serta TXT/CSV/MD/JSON/XML. OCR Indonesia + Inggris berjalan lokal; dokumen tidak dikirim ke layanan eksternal. File desktop tetap hanya terlihat oleh pemiliknya. Ini pencarian kata/full-text, belum pencarian semantik atau sinonim AI.
+
+Siapkan Python 3.12+ dan Tesseract, lalu dari direktori proyek:
+
+```powershell
+python -m venv storage/app/search-runtime
+storage/app/search-runtime/Scripts/python.exe -m pip install -r resources/document-search/requirements.txt
+New-Item -ItemType Directory -Force storage/app/ocr-tessdata
+curl.exe -fL https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/ind.traineddata -o storage/app/ocr-tessdata/ind.traineddata
+curl.exe -fL https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/4.1.0/eng.traineddata -o storage/app/ocr-tessdata/eng.traineddata
+php artisan migrate
+php artisan search:reindex
+php artisan queue:work document-indexing --queue=indexing --timeout=600 --tries=2
+```
+
+Worker harus tetap berjalan agar file baru otomatis terindeks. Di Linux gunakan `storage/app/search-runtime/bin/python` untuk instalasi pip, dan kelola worker dengan process supervisor. Lokasi runtime dapat diatur melalui `DOCUMENT_SEARCH_PYTHON`, `DOCUMENT_SEARCH_TESSERACT`, `DOCUMENT_SEARCH_TESSDATA`, dan `DOCUMENT_SEARCH_LANGUAGES` (default `ind+eng`).
+
+`php artisan search:reindex --status` menampilkan jumlah per status; `--force` mengantrekan ulang semua file. Tanpa `--force`, hanya status pending/gagal yang diantrekan ulang. Refresh halaman untuk melihat status terbaru. PDF terenkripsi/rusak bisa gagal; video, format Office lama DOC/XLS/PPT, dan format tidak didukung tetap dapat dicari berdasarkan nama/metadata. Akurasi OCR bergantung kualitas dan orientasi scan. Batas ekstraksi: 100 halaman/gambar, 500.000 karakter, 100 MB file, dan sekitar 8 menit per dokumen; hasil terpotong ditandai sebagian.
+
+Uji OCR lokal: `storage/app/search-runtime/Scripts/python.exe -m unittest discover -s resources/document-search -p "test_*.py"`.
+
 ## Konvensi commit
 
 Proyek menggunakan [Conventional Commits](https://www.conventionalcommits.org/):

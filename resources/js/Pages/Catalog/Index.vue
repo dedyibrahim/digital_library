@@ -6,6 +6,7 @@ import DriveIcon from '@/Components/DriveIcon.vue';
 import FileIcon from '@/Components/FileIcon.vue';
 import FileContextMenu from '@/Components/FileContextMenu.vue';
 import Modal from '@/Components/Modal.vue';
+import DocumentSearchStatus from '@/Components/DocumentSearchStatus.vue';
 
 const props = defineProps({
     books: Object,
@@ -375,7 +376,7 @@ onUnmounted(() => {
 
             <div class="mx-auto flex h-12 w-full max-w-3xl items-center rounded-2xl bg-slate-100 px-4 transition focus-within:bg-white focus-within:shadow-md">
                 <svg class="mr-3 size-5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input v-model="form.search" class="w-full border-0 bg-transparent p-0 text-[15px] placeholder:text-slate-500 focus:ring-0" type="search" placeholder="Cari dalam pustaka" />
+                <input v-model="form.search" class="w-full border-0 bg-transparent p-0 text-[15px] placeholder:text-slate-500 focus:ring-0" type="search" :placeholder="$page.props.auth.user ? 'Cari nama atau isi dokumen' : 'Cari dalam pustaka'" />
             </div>
 
             <div class="ml-2 flex items-center gap-2 sm:ml-6">
@@ -468,7 +469,7 @@ onUnmounted(() => {
                                 <FileIcon :book="book" class="h-10 w-9 text-[36px]" />
                                 <div class="min-w-0"><button v-if="(book.object_key || book.file_path) && $page.props.auth.user" @click="openPreview(book)" class="block w-full truncate text-left font-medium text-slate-800 hover:text-blue-600 hover:underline">{{ book.title }}</button><p v-else class="truncate font-medium text-slate-800">{{ book.title }}</p><p class="truncate text-xs text-slate-500">{{ book.category.name }}<template v-if="book.published_year"> · {{ book.published_year }}</template></p></div>
                             </div>
-                            <span class="truncate text-slate-600">{{ book.author }}</span>
+                            <div class="min-w-0"><span class="truncate text-slate-600">{{ book.author }}</span><DocumentSearchStatus v-if="$page.props.auth.user" :book="book" /></div>
                             <span class="text-slate-500">{{ fileType(book) }}</span>
                             <span class="text-slate-500">{{ fileSize(book) }}</span>
                             <div v-if="$page.props.auth.user" class="flex items-center justify-end">
@@ -485,6 +486,7 @@ onUnmounted(() => {
                             <div class="flex items-center justify-between gap-2 p-3"><div class="flex min-w-0 items-center gap-2"><FileIcon :book="book" class="h-8 w-7 text-[28px]" /><span class="truncate text-sm font-medium" :title="book.title">{{ book.title }}</span></div><button v-if="$page.props.auth.user" @click="openContextMenu($event, book)" class="shrink-0 rounded-full p-1.5 text-slate-500 hover:bg-blue-100 hover:text-blue-700" :aria-label="`Opsi ${book.title}`" aria-haspopup="menu" :aria-expanded="contextMenu?.book.uuid === book.uuid"><DriveIcon name="more" class="size-5" /></button></div>
                             <button v-if="(book.object_key || book.file_path) && $page.props.auth.user" @click="openPreview(book)" class="mx-3 block h-44 w-[calc(100%_-_1.5rem)] overflow-hidden rounded-lg bg-white text-center shadow-sm hover:ring-2 hover:ring-blue-400"><FileThumbnail :book="book" /></button><div v-else class="mx-3 h-44 w-[calc(100%_-_1.5rem)] overflow-hidden rounded-lg bg-white text-center shadow-sm"><FileThumbnail :book="book" /></div>
                             <div class="flex items-center justify-between gap-2 p-3 text-xs text-slate-500"><span class="flex min-w-0 items-center gap-1.5"><DriveIcon name="folder" class="size-3.5 shrink-0" /><span class="truncate">{{ book.category.name }}</span></span><div class="flex shrink-0 items-center gap-2"><span>{{ fileSize(book) }}</span><button v-if="$page.props.auth.user" @click="toggleStar(book)" class="rounded-full p-1 hover:bg-slate-200" :class="book.is_starred ? 'text-amber-500' : 'text-slate-400'" :title="book.is_starred ? 'Hapus bintang' : 'Beri bintang'"><DriveIcon name="star" class="size-4" :class="book.is_starred && 'fill-amber-100'" /></button></div></div>
+                            <DocumentSearchStatus v-if="$page.props.auth.user" :book="book" class="px-3 pb-3" />
                         </article>
                     </div>
 
