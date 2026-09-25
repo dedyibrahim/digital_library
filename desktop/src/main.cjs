@@ -80,8 +80,8 @@ function showWindow() {
     if (window && !window.isDestroyed()) { window.show(); window.focus(); return; }
     window = new BrowserWindow({
         width: 1000, height: 760, minWidth: 760, minHeight: 620,
-        title: 'Pustaka Desktop', backgroundColor: '#f6f8fc',
-        icon: path.join(__dirname, 'icon.png'), autoHideMenuBar: true,
+        title: 'Digital Library', backgroundColor: '#f6f8fc',
+        icon: path.join(__dirname, process.platform === 'win32' ? 'icon.ico' : 'icon.png'), autoHideMenuBar: true,
         webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true },
     });
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
@@ -170,9 +170,9 @@ async function start() {
         return snapshot();
     });
     tray = new Tray(nativeImage.createFromPath(path.join(__dirname, 'icon.png')).resize({ width: 20, height: 20 }));
-    tray.setToolTip('Pustaka Desktop');
+    tray.setToolTip('Digital Library');
     tray.setContextMenu(Menu.buildFromTemplate([
-        { label: 'Buka Pustaka Desktop', click: showWindow },
+        { label: 'Buka Digital Library', click: showWindow },
         { label: 'Keluar aplikasi', click: () => app.quit() },
     ]));
     tray.on('double-click', showWindow);
@@ -184,7 +184,7 @@ async function start() {
 if (!app.requestSingleInstanceLock()) app.quit();
 else {
     app.on('second-instance', showWindow);
-    app.whenReady().then(start).catch(error => { dialog.showErrorBox('Pustaka Desktop', error.message); app.quit(); });
+    app.whenReady().then(start).catch(error => { dialog.showErrorBox('Digital Library', error.message); app.quit(); });
     app.on('before-quit', () => { quitting = true; clearInterval(timer); });
     app.on('window-all-closed', () => {});
 }

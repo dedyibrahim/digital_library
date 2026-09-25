@@ -22,9 +22,9 @@ async function setFolderStatus(folder, state) {
     const { app } = require('electron');
     const iconDirectory = path.join(app.getPath('userData'), 'folder-icons');
     await fs.mkdir(iconDirectory, { recursive: true });
-    const icon = path.join(iconDirectory, 'pustaka-' + state + '.ico');
+    const icon = path.join(iconDirectory, 'digital-library-' + state + '.ico');
     await fs.copyFile(path.join(__dirname, 'folder-' + state + '.ico'), icon);
-    const content = Buffer.from('\ufeff' + marker + '\r\n[.ShellClassInfo]\r\nIconResource=' + icon + ',0\r\nInfoTip=Pustaka Desktop: ' + state + '\r\n', 'utf16le');
+    const content = Buffer.from('\ufeff' + marker + '\r\n[.ShellClassInfo]\r\nIconResource=' + icon + ',0\r\nInfoTip=Digital Library: ' + state + '\r\n', 'utf16le');
     if (previous?.equals(content)) return true;
     if (previous) await execute('attrib.exe', ['-s', '-h', iniPath], { windowsHide: true });
     await fs.writeFile(iniPath, content, { flag: previous ? 'w' : 'wx' });

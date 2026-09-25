@@ -26,7 +26,7 @@ const showingNavigationDropdown = ref(false);
                                     <ApplicationLogo
                                         class="block size-10"
                                     />
-                                    <span class="hidden text-lg font-semibold text-slate-700 lg:block">Pustaka Digital</span>
+                                    <span class="hidden text-lg font-semibold text-slate-700 lg:block">Digital Library</span>
                                 </Link>
                             </div>
 

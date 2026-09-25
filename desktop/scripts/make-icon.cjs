@@ -2,9 +2,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Resvg } = require('@resvg/resvg-js');
 
-// The web application's vector is the single source of truth for desktop branding.
-const component = fs.readFileSync(path.join(__dirname, '../../resources/js/Components/ApplicationLogo.vue'), 'utf8');
-const logo = component.match(/<svg[\s\S]*?<\/svg>/)[0];
+// Shared brand asset for web, executable, tray and folder icons.
+const source = fs.readFileSync(path.join(__dirname, '../../public/digital-library-logo.png'));
+const logo = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><image width="48" height="48" href="data:image/png;base64,${source.toString('base64')}"/></svg>`;
 const output = path.join(__dirname, '../src');
 const badges = {
     synced: '<circle cx="37" cy="37" r="10" fill="#16a34a" stroke="white" stroke-width="2"/><path d="m32 37 3 3 6-7" fill="none" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
@@ -30,4 +30,6 @@ function ico(svg) {
 }
 fs.writeFileSync(path.join(output, 'icon.png'), render(logo, 256));
 fs.writeFileSync(path.join(output, 'icon.ico'), ico(logo));
+fs.writeFileSync(path.join(__dirname, '../../public/digital-library-icon.png'), render(logo, 192));
+fs.writeFileSync(path.join(__dirname, '../../public/favicon.ico'), ico(logo));
 for (const [state, badge] of Object.entries(badges)) fs.writeFileSync(path.join(output, 'folder-' + state + '.ico'), ico(logo.replace('</svg>', badge + '</svg>')));

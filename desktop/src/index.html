@@ -4,22 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <title>Pustaka Desktop</title>
+  <title>Digital Library</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <aside>
-    <div class="brand"><img src="icon.png" alt="" width="42" height="42"><span>Pustaka<span class="muted">Desktop</span></span></div>
+    <div class="brand"><img src="icon.png" alt="Logo Digital Library" width="48" height="48"><span>Digital Library<span class="muted">Desktop</span></span></div>
     <div class="nav active">▣ &nbsp; Komputer saya</div>
     <button id="web" class="nav">↗ &nbsp; Buka pustaka web</button>
-    <div class="sidebar-bottom">File Anda, tetap terhubung.<br><span class="muted">Pustaka Desktop · 1.0.0</span></div>
+    <div class="sidebar-bottom">Knowledge without limits.<br><span class="muted">Digital Library · 1.0.1</span></div>
   </aside>
   <main>
-    <header><div><span class="eyebrow">PUSTAKA DIGITAL</span><h1>Komputer saya</h1></div><span id="account" class="badge">Belum login</span></header>
+    <header><div><span class="eyebrow">DIGITAL LIBRARY</span><h1>Komputer saya</h1></div><span id="account" class="badge">Belum login</span></header>
     <div id="error" role="alert" hidden></div>
     <section id="login-panel" class="card">
-      <div class="hero">↥</div><h2>Folder Anda, tersinkron.</h2>
-      <p class="muted">Masuk dengan akun Pustaka Digital untuk menghubungkan komputer ini.</p>
+      <div class="hero"><img src="icon.png" alt="" width="52" height="52"></div><h2>Folder Anda, tersinkron.</h2>
+      <p class="muted">Masuk dengan akun Digital Library untuk menghubungkan komputer ini.</p>
       <form id="login-form">
         <label for="server">Alamat server</label><input id="server" type="url" value="http://127.0.0.1:8000" required>
         <small>Gunakan HTTPS untuk server online. Localhost hanya untuk komputer yang menjalankan Laravel.</small>

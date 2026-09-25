@@ -6,6 +6,7 @@ import DriveIcon from '@/Components/DriveIcon.vue';
 import FileIcon from '@/Components/FileIcon.vue';
 import FileContextMenu from '@/Components/FileContextMenu.vue';
 import Modal from '@/Components/Modal.vue';
+import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import DocumentSearchStatus from '@/Components/DocumentSearchStatus.vue';
 
 const props = defineProps({
@@ -367,11 +368,9 @@ onUnmounted(() => {
             <div class="text-center"><div class="mx-auto grid size-20 place-items-center rounded-3xl bg-blue-600 text-white shadow-xl shadow-blue-200"><DriveIcon name="upload" class="size-10" /></div><p class="mt-5 text-2xl font-semibold text-blue-900">{{ bookForm.processing ? 'Upload sedang berlangsung' : 'Lepaskan untuk mengupload' }}</p><p class="mt-2 text-sm text-blue-700">{{ bookForm.processing ? 'Tunggu sampai upload selesai untuk menambahkan file.' : `Langsung disimpan ke ${categories.find((category) => category.id == bookForm.category_id)?.name || activeLabel}` }}</p><p class="mt-2 text-xs text-blue-500">Maksimal 20 file · 100 MB per file</p></div>
         </div>
         <header class="fixed inset-x-0 top-0 z-30 flex h-16 items-center border-b border-slate-200 bg-white px-4">
-            <Link href="/" class="mr-3 flex shrink-0 items-center gap-3 md:mr-0 md:w-60 md:px-2" aria-label="Pustaka Digital">
-                <span class="grid size-10 place-items-center rounded-xl bg-blue-600 text-white shadow-sm">
-                    <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
-                </span>
-                <span class="hidden text-xl font-semibold tracking-tight text-slate-700 md:inline">Pustaka Digital</span>
+            <Link href="/" class="mr-3 flex shrink-0 items-center gap-3 md:mr-0 md:w-60 md:px-2" aria-label="Digital Library">
+                <ApplicationLogo class="size-11 shrink-0" />
+                <span class="hidden text-xl font-semibold tracking-tight text-slate-700 md:inline">Digital Library</span>
             </Link>
 
             <div class="mx-auto flex h-12 w-full max-w-3xl items-center rounded-2xl bg-slate-100 px-4 transition focus-within:bg-white focus-within:shadow-md">

@@ -124,7 +124,7 @@ composer run dev
 ## Aplikasi desktop Windows
 
 Source aplikasi tersedia di `desktop/` (Electron). Aplikasi harus login dengan akun
-Pustaka Digital sebelum folder dapat disinkronkan. File desktop tampil pada folder
+Digital Library sebelum folder dapat disinkronkan. File desktop tampil pada folder
 **Desktop Sync** di web dan hanya dapat diakses pemiliknya; tautan berbagi yang dibuat
 pemilik tetap dapat digunakan penerima sesuai masa berlakunya.
 
@@ -137,7 +137,7 @@ npm.cmd start
 npm.cmd run dist
 ```
 
-Installer: `desktop/dist/Pustaka-Desktop-Setup-1.0.0.exe`. Hasil build tidak disimpan
+Output build installer: `desktop/dist/Digital-Library-Setup-1.0.1.exe`. Hasil build tidak disimpan
 di Git. Jalankan installer lalu isi alamat server, email, dan password. Pilih folder
 khusus dan klik **Mulai sinkronisasi**. Server Laravel harus tetap berjalan.
 `http://127.0.0.1:8000` hanya sesuai jika server dan desktop ada di komputer yang sama;
@@ -157,10 +157,10 @@ komputer lain memerlukan server HTTPS yang dapat dijangkau.
 - Tray, jeda/lanjut, aktivitas transfer, pilihan startup Windows, dan percobaan ulang
   setelah offline tersedia. Password tidak disimpan; token 30 hari dienkripsi oleh
   penyimpanan kredensial OS melalui Electron safeStorage. Logout mencabut token perangkat.
-- Logo executable, taskbar, tray, dan installer berasal dari SVG logo aplikasi web.
+- Logo executable, taskbar, tray, dan installer berasal dari `public/digital-library-logo.png`.
   Progress total berdasarkan jumlah file yang harus disinkronkan, termasuk progress
   transfer file aktif; 100% memerlukan respons server dan checksum yang cocok.
-- Folder pilihan di Windows Explorer menggunakan ikon Pustaka dengan status: centang
+- Folder pilihan di Windows Explorer menggunakan ikon Digital Library dengan status: centang
   hijau (tersinkron), biru (proses), kuning (jeda), atau merah (error/file dilewati).
   Ini merupakan ikon folder pilihan melalui `desktop.ini`, bukan overlay per-file
   atau kolom Status dari integrasi Windows Cloud Files. Ikon Explorer kadang memerlukan
@@ -172,6 +172,18 @@ Implementasi autentikasi mengikuti [Laravel Sanctum](https://laravel.com/docs/13
 dan pemisahan proses desktop mengikuti [panduan keamanan Electron](https://www.electronjs.org/docs/latest/tutorial/security).
 
 ## Pengujian aplikasi web
+
+### Aset identitas Digital Library
+
+Logo sumber berada di `public/digital-library-logo.png`, hasil ekstraksi menggunakan built-in `imagegen` dari gambar panduan merek yang diberikan pengguna. `node desktop/scripts/make-icon.cjs` menghasilkan favicon, ikon aplikasi Windows multi-resolusi, ikon tray, dan ikon status folder dari sumber yang sama. Nama paket dan AppUserModelID lama tetap dipertahankan untuk kompatibilitas pengaturan sinkronisasi.
+
+Prompt ekstraksi:
+
+> Use case: background-extraction. Input image: user's Digital Library brand board, edit target. Extract ONLY the large cyan/blue open-book D-shaped logo symbol in the upper-left panel (above Digital Library text). Preserve its exact silhouette, page geometry, gradient blue colors and floating square pixels. Remove ALL text, white background, other panels, mockups and all other imagery. Output one centered isolated mark on genuine transparent alpha background, square 1024x1024 canvas, logo occupies 86% width, no new design, no text, no shadow, no border. This is the production application icon and web logo asset. Save the resulting PNG as a local image artifact for the project.
+
+Tes branding dan sinkronisasi desktop: `cd desktop` lalu `npm.cmd test`. Pasang dependensi frontend di root proyek terlebih dahulu karena tes branding juga mengompilasi template Vue.
+
+### Tes web
 
 ```bash
 php artisan test

@@ -1,8 +1,8 @@
 {
   "name": "pustaka-desktop",
-  "version": "1.0.0",
-  "description": "Pustaka Digital desktop folder synchronization",
-  "author": "Pustaka Digital",
+  "version": "1.0.1",
+  "description": "Digital Library desktop folder synchronization",
+  "author": "Digital Library",
   "private": true,
   "main": "src/main.cjs",
   "scripts": {
@@ -23,7 +23,7 @@
   },
   "build": {
     "appId": "id.pustaka.desktop",
-    "productName": "Pustaka Desktop",
+    "productName": "Digital Library",
     "files": [
       "src/**/*",
       "package.json"
@@ -34,6 +34,7 @@
     "win": {
       "target": "nsis",
       "icon": "src/icon.ico",
+      "signAndEditExecutable": true,
       "signExecutable": false
     },
     "nsis": {
@@ -41,7 +42,9 @@
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "artifactName": "Pustaka-Desktop-Setup-${version}.${ext}"
+      "installerIcon": "src/icon.ico",
+      "uninstallerIcon": "src/icon.ico",
+      "artifactName": "Digital-Library-Setup-${version}.${ext}"
     }
   }
 }

@@ -9,7 +9,8 @@ import { Link } from '@inertiajs/vue3';
     >
         <div>
             <Link href="/">
-                <ApplicationLogo class="size-20" />
+                <ApplicationLogo class="mx-auto size-20" />
+                <span class="mt-2 block text-center text-xl font-semibold text-slate-900">Digital Library</span>
             </Link>
         </div>
 

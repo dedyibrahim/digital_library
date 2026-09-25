@@ -20,10 +20,12 @@ app.on('browser-window-created', (_event, window) => {
             const isolation = await window.webContents.executeJavaScript('({node: typeof require, hidden: document.getElementById("sync-panel").hidden, title: document.title})');
             assert.equal(isolation.node, 'undefined');
             assert.equal(isolation.hidden, true);
-            assert.equal(isolation.title, 'Pustaka Desktop');
-            window.showInactive();
+            assert.equal(isolation.title, 'Digital Library');
+            const brand = await window.webContents.executeJavaScript('({loaded: document.querySelector(".brand img").naturalWidth, text: document.querySelector(".brand").textContent})');
+            assert.ok(brand.loaded > 0);
+            assert.match(brand.text, /Digital Library/);
             await new Promise(resolve => setTimeout(resolve, 1000));
-            const screenshot = await window.capturePage();
+            const screenshot = await window.capturePage(undefined, { stayHidden: true });
             fs.mkdirSync(path.join(__dirname, '../dist'), { recursive: true });
             fs.writeFileSync(path.join(__dirname, '../dist/smoke.png'), screenshot.toPNG());
             console.log('PASS: Electron renderer, isolated preload IPC, login gate, and screenshot.');
