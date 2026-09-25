@@ -1,3 +1,42 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Shared surfaces cover catalog, account pages and teleported dialogs. Media
+   contents retain their original colors; no image inversion is applied. */
+@layer base {
+    body { @apply text-slate-800; }
+    html.dark { color-scheme: dark; }
+    html.dark body { background: #0b1220; color: #e2e8f0; }
+    html.dark :where(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+        background-color: #172234;
+        color: #e2e8f0;
+        border-color: #475569;
+    }
+    html.dark :where(input, textarea)::placeholder { color: #94a3b8; }
+    html.dark dialog { color: #e2e8f0; }
+}
+
+@layer utilities {
+    .dark :is(.bg-white, .focus-within\:bg-white:focus-within) { background-color: #172234; }
+    .dark :is(.bg-slate-50, .bg-gray-100, .bg-gray-50) { background-color: #0b1220; }
+    .dark :is(.bg-slate-100, .bg-slate-200, .bg-gray-200) { background-color: #243247; }
+    .dark :is(.text-slate-900, .text-slate-800, .text-gray-900, .text-gray-800) { color: #f1f5f9; }
+    .dark :is(.text-slate-700, .text-slate-600, .text-gray-700, .text-gray-600) { color: #cbd5e1; }
+    .dark :is(.text-slate-500, .text-slate-400, .text-gray-500, .text-gray-400) { color: #94a3b8; }
+    .dark :is(.border-slate-100, .border-slate-200, .border-slate-300, .border-gray-100, .border-gray-200, .border-gray-300) { border-color: #334155; }
+    .dark :is(.divide-slate-100, .divide-slate-200, .divide-gray-100, .divide-gray-200) > :not([hidden]) ~ :not([hidden]) { border-color: #334155; }
+    .dark :is(.hover\:bg-white, .hover\:bg-slate-50, .hover\:bg-slate-100, .hover\:bg-gray-50, .hover\:bg-gray-100):hover,
+    .dark .focus\:bg-gray-100:focus { background-color: #2d3e55; }
+    .dark :is(.hover\:text-gray-700, .hover\:text-gray-500):hover { color: #f1f5f9; }
+    .dark :is(.bg-blue-50, .bg-blue-100, .bg-indigo-50) { background-color: #143355; }
+    .dark .bg-blue-50\/95 { background-color: rgb(20 51 85 / 95%); }
+    .dark :is(.text-blue-950, .text-blue-900, .text-blue-800, .text-blue-700, .text-blue-600, .text-indigo-600, .text-indigo-700) { color: #93c5fd; }
+    .dark :is(.hover\:bg-blue-50, .hover\:bg-blue-100, .hover\:bg-indigo-50):hover { background-color: #1e456e; }
+    .dark .bg-red-50 { background-color: #451e2a; }
+    .dark :is(.text-red-600, .text-red-700) { color: #fca5a5; }
+    .dark .bg-emerald-50 { background-color: #123c35; }
+    .dark :is(.text-emerald-600, .text-emerald-700) { color: #6ee7b7; }
+    .dark .from-white { --tw-gradient-from: #172234 var(--tw-gradient-from-position); --tw-gradient-to: rgb(23 34 52 / 0) var(--tw-gradient-to-position); }
+    .dark .to-slate-100 { --tw-gradient-to: #243247 var(--tw-gradient-to-position); }
+}

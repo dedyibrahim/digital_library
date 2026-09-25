@@ -3,6 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "test:theme": "node --test tests/theme.test.mjs",
         "build": "vite build",
         "dev": "vite"
     },

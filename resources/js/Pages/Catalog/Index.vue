@@ -7,6 +7,7 @@ import FileIcon from '@/Components/FileIcon.vue';
 import FileContextMenu from '@/Components/FileContextMenu.vue';
 import Modal from '@/Components/Modal.vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
+import ThemeToggle from '@/Components/ThemeToggle.vue';
 import DocumentSearchStatus from '@/Components/DocumentSearchStatus.vue';
 
 const props = defineProps({
@@ -361,9 +362,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <Head title="Pustaka Saya" />
-
     <div class="min-h-screen bg-white text-slate-800">
+        <Head title="Pustaka Saya" />
         <div v-if="isDragging" class="pointer-events-none fixed inset-3 z-[110] grid place-items-center rounded-3xl border-2 border-dashed border-blue-500 bg-blue-50/95 backdrop-blur-sm">
             <div class="text-center"><div class="mx-auto grid size-20 place-items-center rounded-3xl bg-blue-600 text-white shadow-xl shadow-blue-200"><DriveIcon name="upload" class="size-10" /></div><p class="mt-5 text-2xl font-semibold text-blue-900">{{ bookForm.processing ? 'Upload sedang berlangsung' : 'Lepaskan untuk mengupload' }}</p><p class="mt-2 text-sm text-blue-700">{{ bookForm.processing ? 'Tunggu sampai upload selesai untuk menambahkan file.' : `Langsung disimpan ke ${categories.find((category) => category.id == bookForm.category_id)?.name || activeLabel}` }}</p><p class="mt-2 text-xs text-blue-500">Maksimal 20 file · 100 MB per file</p></div>
         </div>
@@ -379,6 +379,7 @@ onUnmounted(() => {
             </div>
 
             <div class="ml-2 flex items-center gap-2 sm:ml-6">
+                <ThemeToggle />
                 <button @click="modal = 'help'" class="rounded-full p-2.5 text-slate-600 hover:bg-slate-100" title="Bantuan"><svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 1 1 5.2 2c-1.3 1-2.3 1.7-2.3 3"/><path d="M12 18h.01"/></svg></button>
                 <Link v-if="$page.props.auth.user" :href="route('profile.edit')" class="grid size-9 place-items-center rounded-full bg-blue-600 text-sm font-semibold text-white">{{ $page.props.auth.user.name.charAt(0) }}</Link>
                 <Link v-else :href="route('login')" class="whitespace-nowrap rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50">Masuk</Link>

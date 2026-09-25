@@ -3,8 +3,10 @@ import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
+import { initializeTheme } from './theme';
 
 const appName = 'Digital Library';
+const theme = initializeTheme();
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -17,6 +19,7 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            .provide('theme', theme)
             .mount(el);
     },
     progress: {
