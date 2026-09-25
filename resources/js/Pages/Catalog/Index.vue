@@ -373,9 +373,9 @@ onUnmounted(() => {
                 <span class="hidden text-xl font-semibold tracking-tight text-slate-700 md:inline">Digital Library</span>
             </Link>
 
-            <div class="mx-auto flex h-12 w-full max-w-3xl items-center rounded-2xl bg-slate-100 px-4 transition focus-within:bg-white focus-within:shadow-md">
+            <div class="mx-auto flex h-12 min-w-0 flex-1 max-w-3xl items-center rounded-2xl bg-slate-100 px-4 transition focus-within:bg-white focus-within:shadow-md">
                 <svg class="mr-3 size-5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input v-model="form.search" class="w-full border-0 bg-transparent p-0 text-[15px] placeholder:text-slate-500 focus:ring-0" type="search" :placeholder="$page.props.auth.user ? 'Cari nama atau isi dokumen' : 'Cari dalam pustaka'" />
+                <input v-model="form.search" class="min-w-0 w-full border-0 bg-transparent p-0 text-[15px] placeholder:text-slate-500 focus:ring-0" type="search" :placeholder="$page.props.auth.user ? 'Cari nama atau isi dokumen' : 'Cari dalam pustaka'" />
             </div>
 
             <div class="ml-2 flex items-center gap-2 sm:ml-6">

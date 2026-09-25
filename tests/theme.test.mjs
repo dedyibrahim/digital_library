@@ -84,5 +84,6 @@ test('theme controls and branded layouts compile', async () => {
         assert.deepEqual(compileTemplate({ source: descriptor.template.content, filename: filename.pathname, id: file }).errors, []);
         if (file.startsWith('Layouts/') || file.startsWith('Pages/')) assert.match(source, /<ThemeToggle/);
         if (file.endsWith('ApplicationLogo')) assert.match(source, /digital-library-logo\.png/);
+        if (file === 'Pages/Catalog/Index') assert.match(source, /v-model="form.search" class="min-w-0/);
     }
 });
